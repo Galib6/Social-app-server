@@ -20,6 +20,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const postCollection = client.db('Social-app').collection('posts');
+        const usersCollection = client.db('Social-app').collection('users');
 
 
         app.get('/posts', async (req, res) => {
@@ -29,45 +30,39 @@ async function run() {
         })
 
         app.post('/addapost', async (req, res) => {
-            const product = req.body;
-            // console.log(product);
-            const result = await postCollection.insertOne(product);
+            const post = req.body;
+            // console.log(post);
+            const result = await postCollection.insertOne(post);
             res.send(result);
         });
 
-
-
-
-        app.delete('/buyer/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: ObjectId(id) };
-            const result = await usersCollection.deleteOne(filter);
-            res.send(result);
-        })
-
-
-
-
-        //_____________________________________
-
-
-
-        app.post('/gsignup', async (req, res) => {
-            const product = req.body;
-            // console.log(product);
-            const result = await usersCollection.insertOne(product);
+        app.post('/about', async (req, res) => {
+            const details = req.body;
+            const filter = { email: body.email }
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    Adress: details.Adress,
+                    name: details.name,
+                    university: details.university
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         });
 
-
-
-        app.delete('/deleteproduct/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: ObjectId(id) };
-            const result = await productsCollection.deleteOne(filter);
-            res.send(result);
+        app.get('/about/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            res.send(user);
         })
 
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        });
 
     }
     finally {
